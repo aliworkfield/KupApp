@@ -103,10 +103,6 @@ dist/
 .yarn/install-state.gz
 .pnp.*
 
-# Database
-*.db
-*.sqlite
-
 # IDE
 .vscode/
 .idea/
@@ -124,47 +120,51 @@ build/
 # Environment files
 .env*
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-env.bak/
-venv.bak/
-.pytest_cache/
-.coverage
-.pytest_cache/
-.coverage
-.pytest_cache/
-
-# Django
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.pidb
+*.userprefs
+*.usertasks
+*.cache
 *.log
-local_settings.py
-db.sqlite3
+*.vspscc
+*.vssscc
+*.tmp
+*.tmp_proj
+*.bak
+*.cache
+*.vs/
+*.pidb
+*.userprefs
+*.usertasks
+.ReSharper*/
+_Temporary/
+nuget/
+packages/
+*.lock.json
+appsettings.Development.json
+appsettings.Local.json
 
-# Flask
-instance/
-.webassets-cache
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# PyCharm
-.idea/
-
-# VS Code
-.vscode/
-
-# SQLite
+# Database
 *.db
+*.sqlite
+*.db-shm
+*.db-wal
 
-# Excel files
-*.xlsx
-*.xls
+# React/Vite
+.vite/
+coverage/
+*.local
 
 # Temp files
 *.tmp
 *.temp
+
+# Excel files (we want to keep templates but not generated files)
+coupons*.xlsx
+coupons*.xls
