@@ -1,6 +1,6 @@
 import { LoginCredentials, AuthState, User } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8001';
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<{ token: string; user: User }> {

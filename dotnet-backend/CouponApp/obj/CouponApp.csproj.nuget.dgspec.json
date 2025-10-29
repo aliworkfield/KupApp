@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\ProgProj\\Coupon-App\\dotnet-backend\\CouponApp\\CouponApp.csproj": {}
+    "C:\\ProgProj\\KupApp\\dotnet-backend\\CouponApp\\CouponApp.csproj": {}
   },
   "projects": {
-    "C:\\ProgProj\\Coupon-App\\dotnet-backend\\CouponApp\\CouponApp.csproj": {
+    "C:\\ProgProj\\KupApp\\dotnet-backend\\CouponApp\\CouponApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\ProgProj\\Coupon-App\\dotnet-backend\\CouponApp\\CouponApp.csproj",
+        "projectUniqueName": "C:\\ProgProj\\KupApp\\dotnet-backend\\CouponApp\\CouponApp.csproj",
         "projectName": "CouponApp",
-        "projectPath": "C:\\ProgProj\\Coupon-App\\dotnet-backend\\CouponApp\\CouponApp.csproj",
+        "projectPath": "C:\\ProgProj\\KupApp\\dotnet-backend\\CouponApp\\CouponApp.csproj",
         "packagesPath": "C:\\Users\\insan\\.nuget\\packages\\",
-        "outputPath": "C:\\ProgProj\\Coupon-App\\dotnet-backend\\CouponApp\\obj\\",
+        "outputPath": "C:\\ProgProj\\KupApp\\dotnet-backend\\CouponApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.102.0, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.2, )"
@@ -77,6 +81,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.DirectoryServices.Protocols": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",

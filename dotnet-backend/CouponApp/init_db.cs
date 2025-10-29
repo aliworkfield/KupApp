@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using CouponApp.Data;
 using CouponApp.Models;
 using CouponApp.Services;
@@ -24,11 +25,16 @@ namespace CouponApp
                 var configuration = new ConfigurationBuilder()
                     .AddInMemoryCollection(new Dictionary<string, string?>
                     {
-                        ["Jwt:Key"] = "coupon_app_secret_key_that_should_be_changed_in_production"
+                        ["Jwt:Key"] = "coupon_app_secret_key_that_should_be_changed_in_production",
+                        ["Ldap:Server"] = "ldap.company.com",
+                        ["Ldap:Port"] = "389",
+                        ["Ldap:BaseDn"] = "dc=company,dc=com",
+                        ["Ldap:UseSsl"] = "false"
                     })
                     .Build();
                     
-                var authService = new AuthService(configuration);
+                var ldapService = new LdapService(configuration);
+                var authService = new AuthService(configuration, ldapService);
 
                 var users = new User[]
                 {

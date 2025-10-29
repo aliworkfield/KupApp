@@ -18,6 +18,7 @@ builder.Services.AddDbContext<CouponAppContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add custom services
+builder.Services.AddScoped<LdapService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CouponService>();
 builder.Services.AddScoped<AuthService>();
@@ -90,7 +91,7 @@ async Task SeedDefaultUsers(CouponAppContext context)
 {
     if (!context.Users.Any())
     {
-        var authService = new AuthService(builder.Configuration);
+        var authService = new AuthService(builder.Configuration, new LdapService(builder.Configuration));
         
         // Create default admin user
         var admin = new User

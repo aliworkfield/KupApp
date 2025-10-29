@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using CouponApp.Services;
 using CouponApp.Models;
 using CouponApp.DTOs;
+using ClosedXML.Excel;
+using System.Data;
 
 namespace CouponApp.Controllers
 {
@@ -56,6 +58,76 @@ namespace CouponApp.Controllers
             };
 
             return CreatedAtAction(nameof(GetCoupon), new { id = coupon.Id }, couponDtoResult);
+        }
+
+        [HttpPost("upload-excel")]
+        [Authorize(Roles = "Manager,Admin")]
+        public async Task<ActionResult<IEnumerable<CouponDto>>> UploadCouponsFromExcel(IFormFile file)
+        {
+            // Get user ID from claims
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("File is required");
+            }
+
+            var coupons = new List<Coupon>();
+            
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    using (var workbook = new XLWorkbook(stream))
+                    {
+                        var worksheet = workbook.Worksheet(1);
+                        var rows = worksheet.RowsUsed();
+
+                        foreach (var row in rows.Skip(1)) // Skip header row
+                        {
+                            var couponDto = new CouponCreateDto
+                            {
+                                Code = row.Cell(1).Value.ToString() ?? "",
+                                Description = row.Cell(2).Value.ToString() ?? "",
+                                DiscountAmount = int.TryParse(row.Cell(3).Value.ToString(), out var discount) ? discount : 0,
+                                DiscountType = row.Cell(4).Value.ToString() ?? "fixed",
+                                ExpirationDate = DateTime.TryParse(row.Cell(5).Value.ToString(), out var date) ? date : (DateTime?)null
+                            };
+
+                            // Validate required fields
+                            if (!string.IsNullOrEmpty(couponDto.Code) && !string.IsNullOrEmpty(couponDto.DiscountType))
+                            {
+                                var coupon = await _couponService.CreateCoupon(couponDto, userId);
+                                coupons.Add(coupon);
+                            }
+                        }
+                    }
+                }
+
+                var couponDtos = coupons.Select(c => new CouponDto
+                {
+                    Id = c.Id,
+                    Code = c.Code,
+                    Description = c.Description,
+                    DiscountAmount = c.DiscountAmount,
+                    DiscountType = c.DiscountType,
+                    ExpirationDate = c.ExpirationDate,
+                    IsActive = c.IsActive,
+                    CreatedAt = c.CreatedAt,
+                    CreatedById = c.CreatedById
+                });
+
+                return Ok(couponDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error processing Excel file: {ex.Message}");
+            }
         }
 
         [HttpGet("my-coupons")]
@@ -206,6 +278,42 @@ namespace CouponApp.Controllers
 
             var assignment = await _couponService.AssignCouponToUser(assignmentDto);
             return Ok(new { message = "Coupon assigned successfully" });
+        }
+
+        [HttpPost("assign-to-all")]
+        [Authorize(Roles = "Manager,Admin")]
+        public async Task<ActionResult<object>> AssignCouponToAllUsers(int couponId)
+        {
+            // Get user ID from claims (manager/admin who is assigning)
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int assigningUserId))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                // Get all users
+                var users = await _userService.GetUsers();
+                
+                // Assign coupon to each user
+                foreach (var user in users)
+                {
+                    var assignmentDto = new CouponAssignmentCreateDto
+                    {
+                        CouponId = couponId,
+                        UserId = user.Id
+                    };
+                    
+                    await _couponService.AssignCouponToUser(assignmentDto);
+                }
+
+                return Ok(new { message = $"Coupon assigned to {users.Count()} users successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error assigning coupon to all users: {ex.Message}");
+            }
         }
 
         [HttpPost("use/{assignmentId}")]

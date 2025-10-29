@@ -11,11 +11,13 @@ namespace CouponApp.Services
     {
         private readonly string _secretKey;
         private readonly int _tokenExpiryMinutes;
+        private readonly LdapService _ldapService;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(IConfiguration configuration, LdapService ldapService)
         {
             _secretKey = configuration["Jwt:Key"] ?? "default_secret_key_that_should_be_changed_in_production";
             _tokenExpiryMinutes = int.Parse(configuration["Jwt:ExpiryMinutes"] ?? "30");
+            _ldapService = ldapService;
         }
 
         public string GenerateToken(User user)
@@ -45,6 +47,11 @@ namespace CouponApp.Services
         public string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public async Task<bool> AuthenticateWithLdap(string username, string password)
+        {
+            return await _ldapService.AuthenticateUserAsync(username, password);
         }
     }
 }

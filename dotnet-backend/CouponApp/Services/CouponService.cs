@@ -134,5 +134,10 @@ namespace CouponApp.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<User>> GetAllUsers()
+        {
+            return await _context.Users.ToListAsync();
+        }
     }
 }

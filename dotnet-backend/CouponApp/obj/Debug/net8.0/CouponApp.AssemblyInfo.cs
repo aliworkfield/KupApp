@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CouponApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42b6032215ddb9f8402be0bbbe85a5641bc84e4a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d2605ee0526b3ef2fb3cfb1fdb4a8f7227d2c088")]
 [assembly: System.Reflection.AssemblyProductAttribute("CouponApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CouponApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

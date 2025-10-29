@@ -9,20 +9,51 @@ namespace CouponApp.Services
     {
         private readonly CouponAppContext _context;
         private readonly AuthService _authService;
+        private readonly LdapService _ldapService;
 
-        public UserService(CouponAppContext context, AuthService authService)
+        public UserService(CouponAppContext context, AuthService authService, LdapService ldapService)
         {
             _context = context;
             _authService = authService;
+            _ldapService = ldapService;
         }
 
         public async Task<User?> AuthenticateUser(string username, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-            if (user != null && _authService.VerifyPassword(password, user.PasswordHash))
+            // First try LDAP authentication
+            var isLdapUser = await _authService.AuthenticateWithLdap(username, password);
+            if (isLdapUser)
             {
+                // Get user info from LDAP
+                var ldapUserInfo = await _ldapService.GetUserInfoAsync(username);
+                
+                // Check if user exists in our database
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null && ldapUserInfo != null)
+                {
+                    // Create user in our database if they don't exist
+                    user = new User
+                    {
+                        Username = ldapUserInfo.Username,
+                        Email = ldapUserInfo.Email,
+                        PasswordHash = _authService.HashPassword(password), // Still store a hash for local fallback
+                        Role = UserRole.User // Default role for LDAP users
+                    };
+                    
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+                }
+                
                 return user;
             }
+            
+            // Fall back to local authentication
+            var localUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (localUser != null && _authService.VerifyPassword(password, localUser.PasswordHash))
+            {
+                return localUser;
+            }
+            
             return null;
         }
 
