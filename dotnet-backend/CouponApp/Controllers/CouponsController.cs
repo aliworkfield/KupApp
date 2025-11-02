@@ -5,6 +5,10 @@ using CouponApp.Models;
 using CouponApp.DTOs;
 using ClosedXML.Excel;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System;
 
 namespace CouponApp.Controllers
 {
@@ -19,6 +23,36 @@ namespace CouponApp.Controllers
         {
             _couponService = couponService;
             _userService = userService;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<CouponDto>>> GetAllCoupons()
+        {
+            try
+            {
+                var coupons = await _couponService.GetAllCoupons();
+                var couponDtos = coupons.Select(c => new CouponDto
+                {
+                    Id = c.Id,
+                    Code = c.Code,
+                    Description = c.Description,
+                    DiscountAmount = c.DiscountAmount,
+                    DiscountType = c.DiscountType,
+                    ExpirationDate = c.ExpirationDate,
+                    IsActive = c.IsActive,
+                    CreatedAt = c.CreatedAt,
+                    CreatedById = c.CreatedById,
+                    Brand = c.Brand,
+                    AssignmentTitle = c.AssignmentTitle
+                });
+
+                return Ok(couponDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching coupons: {ex.Message}");
+            }
         }
 
         [HttpPost]
@@ -38,10 +72,6 @@ namespace CouponApp.Controllers
                 return Unauthorized();
             }
 
-            // Check if coupon code already exists
-            // This would normally be done in the service layer
-            // For simplicity, we're doing it here
-
             var coupon = await _couponService.CreateCoupon(couponDto, userId);
 
             var couponDtoResult = new CouponDto
@@ -54,7 +84,9 @@ namespace CouponApp.Controllers
                 ExpirationDate = coupon.ExpirationDate,
                 IsActive = coupon.IsActive,
                 CreatedAt = coupon.CreatedAt,
-                CreatedById = coupon.CreatedById
+                CreatedById = coupon.CreatedById,
+                Brand = coupon.Brand,
+                AssignmentTitle = coupon.AssignmentTitle
             };
 
             return CreatedAtAction(nameof(GetCoupon), new { id = coupon.Id }, couponDtoResult);
@@ -96,7 +128,9 @@ namespace CouponApp.Controllers
                                 Description = row.Cell(2).Value.ToString() ?? "",
                                 DiscountAmount = int.TryParse(row.Cell(3).Value.ToString(), out var discount) ? discount : 0,
                                 DiscountType = row.Cell(4).Value.ToString() ?? "fixed",
-                                ExpirationDate = DateTime.TryParse(row.Cell(5).Value.ToString(), out var date) ? date : (DateTime?)null
+                                ExpirationDate = DateTime.TryParse(row.Cell(5).Value.ToString(), out var date) ? date : (DateTime?)null,
+                                Brand = row.Cell(6).Value.ToString() ?? "",
+                                AssignmentTitle = row.Cell(7).Value.ToString() ?? ""
                             };
 
                             // Validate required fields
@@ -119,7 +153,9 @@ namespace CouponApp.Controllers
                     ExpirationDate = c.ExpirationDate,
                     IsActive = c.IsActive,
                     CreatedAt = c.CreatedAt,
-                    CreatedById = c.CreatedById
+                    CreatedById = c.CreatedById,
+                    Brand = c.Brand,
+                    AssignmentTitle = c.AssignmentTitle
                 });
 
                 return Ok(couponDtos);
@@ -154,7 +190,9 @@ namespace CouponApp.Controllers
                     ExpirationDate = a.Coupon.ExpirationDate,
                     IsActive = a.Coupon.IsActive,
                     CreatedAt = a.Coupon.CreatedAt,
-                    CreatedById = a.Coupon.CreatedById
+                    CreatedById = a.Coupon.CreatedById,
+                    Brand = a.Coupon.Brand,
+                    AssignmentTitle = a.Coupon.AssignmentTitle
                 });
 
                 return Ok(coupons);
@@ -189,7 +227,9 @@ namespace CouponApp.Controllers
                     ExpirationDate = a.Coupon.ExpirationDate,
                     IsActive = a.Coupon.IsActive,
                     CreatedAt = a.Coupon.CreatedAt,
-                    CreatedById = a.Coupon.CreatedById
+                    CreatedById = a.Coupon.CreatedById,
+                    Brand = a.Coupon.Brand,
+                    AssignmentTitle = a.Coupon.AssignmentTitle
                 });
 
                 return Ok(coupons);
@@ -224,7 +264,9 @@ namespace CouponApp.Controllers
                     ExpirationDate = c.ExpirationDate,
                     IsActive = c.IsActive,
                     CreatedAt = c.CreatedAt,
-                    CreatedById = c.CreatedById
+                    CreatedById = c.CreatedById,
+                    Brand = c.Brand,
+                    AssignmentTitle = c.AssignmentTitle
                 });
 
                 return Ok(couponDtos);
@@ -252,7 +294,9 @@ namespace CouponApp.Controllers
                     ExpirationDate = c.ExpirationDate,
                     IsActive = c.IsActive,
                     CreatedAt = c.CreatedAt,
-                    CreatedById = c.CreatedById
+                    CreatedById = c.CreatedById,
+                    Brand = c.Brand,
+                    AssignmentTitle = c.AssignmentTitle
                 });
 
                 return Ok(couponDtos);
@@ -263,102 +307,38 @@ namespace CouponApp.Controllers
             }
         }
 
-        [HttpPost("assign")]
+        [HttpGet("unassigned-by-title/{assignmentTitle}")]
         [Authorize(Roles = "Manager,Admin")]
-        public async Task<ActionResult<object>> AssignCoupon(CouponAssignmentCreateDto assignmentDto)
+        public async Task<ActionResult<IEnumerable<CouponDto>>> GetUnassignedCouponsByAssignmentTitle(string assignmentTitle)
         {
-            // Validate input
-            if (assignmentDto.CouponId <= 0 || assignmentDto.UserId <= 0)
-            {
-                return BadRequest("Coupon ID and User ID are required");
-            }
-
-            // In a full implementation, you would check if the coupon and user exist
-            // For simplicity, we're just creating the assignment
-
-            var assignment = await _couponService.AssignCouponToUser(assignmentDto);
-            return Ok(new { message = "Coupon assigned successfully" });
-        }
-
-        [HttpPost("assign-to-all")]
-        [Authorize(Roles = "Manager,Admin")]
-        public async Task<ActionResult<object>> AssignCouponToAllUsers(int couponId)
-        {
-            // Get user ID from claims (manager/admin who is assigning)
-            var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int assigningUserId))
-            {
-                return Unauthorized();
-            }
-
             try
             {
-                // Get all users
-                var users = await _userService.GetUsers();
-                
-                // Assign coupon to each user
-                foreach (var user in users)
+                var coupons = await _couponService.GetUnassignedCouponsByAssignmentTitle(assignmentTitle);
+                var couponDtos = coupons.Select(c => new CouponDto
                 {
-                    var assignmentDto = new CouponAssignmentCreateDto
-                    {
-                        CouponId = couponId,
-                        UserId = user.Id
-                    };
-                    
-                    await _couponService.AssignCouponToUser(assignmentDto);
-                }
+                    Id = c.Id,
+                    Code = c.Code,
+                    Description = c.Description,
+                    DiscountAmount = c.DiscountAmount,
+                    DiscountType = c.DiscountType,
+                    ExpirationDate = c.ExpirationDate,
+                    IsActive = c.IsActive,
+                    CreatedAt = c.CreatedAt,
+                    CreatedById = c.CreatedById,
+                    Brand = c.Brand,
+                    AssignmentTitle = c.AssignmentTitle
+                });
 
-                return Ok(new { message = $"Coupon assigned to {users.Count()} users successfully" });
+                return Ok(couponDtos);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error assigning coupon to all users: {ex.Message}");
+                return StatusCode(500, $"Error fetching unassigned coupons: {ex.Message}");
             }
-        }
-
-        [HttpPost("use/{assignmentId}")]
-        [Authorize(Roles = "User")]
-        public async Task<ActionResult<object>> UseCoupon(int assignmentId)
-        {
-            // Validate input
-            if (assignmentId <= 0)
-            {
-                return BadRequest("Assignment ID is required");
-            }
-
-            var result = await _couponService.MarkCouponAsUsed(assignmentId);
-            if (!result)
-            {
-                return NotFound("Coupon assignment not found");
-            }
-
-            return Ok(new { message = "Coupon marked as used" });
-        }
-
-        // Additional endpoints that might be needed
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<CouponDto>>> GetAllCoupons()
-        {
-            var coupons = await _couponService.GetAllCoupons();
-            var couponDtos = coupons.Select(c => new CouponDto
-            {
-                Id = c.Id,
-                Code = c.Code,
-                Description = c.Description,
-                DiscountAmount = c.DiscountAmount,
-                DiscountType = c.DiscountType,
-                ExpirationDate = c.ExpirationDate,
-                IsActive = c.IsActive,
-                CreatedAt = c.CreatedAt,
-                CreatedById = c.CreatedById
-            });
-
-            return Ok(couponDtos);
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult<CouponDto>> GetCoupon(int id)
         {
             var coupon = await _couponService.GetCouponById(id);
@@ -377,7 +357,9 @@ namespace CouponApp.Controllers
                 ExpirationDate = coupon.ExpirationDate,
                 IsActive = coupon.IsActive,
                 CreatedAt = coupon.CreatedAt,
-                CreatedById = coupon.CreatedById
+                CreatedById = coupon.CreatedById,
+                Brand = coupon.Brand,
+                AssignmentTitle = coupon.AssignmentTitle
             };
 
             return Ok(couponDto);
@@ -403,7 +385,9 @@ namespace CouponApp.Controllers
                 ExpirationDate = coupon.ExpirationDate,
                 IsActive = coupon.IsActive,
                 CreatedAt = coupon.CreatedAt,
-                CreatedById = coupon.CreatedById
+                CreatedById = coupon.CreatedById,
+                Brand = coupon.Brand,
+                AssignmentTitle = coupon.AssignmentTitle
             };
 
             return Ok(couponDtoResult);
@@ -411,15 +395,156 @@ namespace CouponApp.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<object>> DeleteCoupon(int id)
+        public async Task<ActionResult<CouponDto>> DeleteCoupon(int id)
         {
-            var success = await _couponService.DeleteCoupon(id);
-            if (!success)
+            var coupon = await _couponService.GetCouponById(id);
+            if (coupon == null)
             {
                 return NotFound();
             }
 
-            return Ok(new { message = "Coupon deleted successfully" });
+            var success = await _couponService.DeleteCoupon(id);
+            if (!success)
+            {
+                return StatusCode(500, "Error deleting coupon");
+            }
+
+            var couponDto = new CouponDto
+            {
+                Id = coupon.Id,
+                Code = coupon.Code,
+                Description = coupon.Description,
+                DiscountAmount = coupon.DiscountAmount,
+                DiscountType = coupon.DiscountType,
+                ExpirationDate = coupon.ExpirationDate,
+                IsActive = coupon.IsActive,
+                CreatedAt = coupon.CreatedAt,
+                CreatedById = coupon.CreatedById,
+                Brand = coupon.Brand,
+                AssignmentTitle = coupon.AssignmentTitle
+            };
+
+            return Ok(couponDto);
+        }
+
+        [HttpPost("assign")]
+        [Authorize(Roles = "Manager,Admin")]
+        public async Task<ActionResult<CouponAssignmentDto>> AssignCoupon(CouponAssignmentCreateDto assignmentDto)
+        {
+            try
+            {
+                var assignment = await _couponService.AssignCouponToUser(assignmentDto);
+                
+                var assignmentDtoResult = new CouponAssignmentDto
+                {
+                    Id = assignment.Id,
+                    CouponId = assignment.CouponId,
+                    UserId = assignment.UserId,
+                    IsUsed = assignment.IsUsed,
+                    UsedAt = assignment.UsedAt,
+                    AssignedAt = assignment.AssignedAt
+                };
+
+                return Ok(assignmentDtoResult);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error assigning coupon: {ex.Message}");
+            }
+        }
+
+        // New endpoint for bulk assignment of coupons to users
+        [HttpPost("assign-bulk")]
+        [Authorize(Roles = "Manager,Admin")]
+        public async Task<ActionResult<IEnumerable<CouponAssignmentDto>>> AssignCouponsBulk([FromBody] IEnumerable<CouponAssignmentCreateDto> assignments)
+        {
+            try
+            {
+                var assignmentTuples = assignments.Select(a => (a.CouponId, a.UserId));
+                var createdAssignments = await _couponService.AssignCouponsToUsersBulk(assignmentTuples);
+                
+                var assignmentDtos = createdAssignments.Select(a => new CouponAssignmentDto
+                {
+                    Id = a.Id,
+                    CouponId = a.CouponId,
+                    UserId = a.UserId,
+                    IsUsed = a.IsUsed,
+                    UsedAt = a.UsedAt,
+                    AssignedAt = a.AssignedAt
+                });
+
+                return Ok(assignmentDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error bulk assigning coupons: {ex.Message}");
+            }
+        }
+
+        // New endpoint for bulk assignment by assignment title
+        [HttpPost("assign-by-title")]
+        [Authorize(Roles = "Manager,Admin")]
+        public async Task<ActionResult<IEnumerable<CouponAssignmentDto>>> AssignCouponsByAssignmentTitle([FromBody] BulkCouponAssignmentDto bulkAssignmentDto)
+        {
+            try
+            {
+                // Get all users
+                var users = await _userService.GetUsers();
+                var userIds = users.Select(u => u.Id);
+                
+                var createdAssignments = await _couponService.AssignCouponsByAssignmentTitle(bulkAssignmentDto.AssignmentTitle, userIds);
+                
+                var assignmentDtos = createdAssignments.Select(a => new CouponAssignmentDto
+                {
+                    Id = a.Id,
+                    CouponId = a.CouponId,
+                    UserId = a.UserId,
+                    IsUsed = a.IsUsed,
+                    UsedAt = a.UsedAt,
+                    AssignedAt = a.AssignedAt
+                });
+
+                return Ok(assignmentDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error bulk assigning coupons by title: {ex.Message}");
+            }
+        }
+
+        [HttpPost("use/{assignmentId}")]
+        [Authorize(Roles = "User")]
+        public async Task<ActionResult> UseCoupon(int assignmentId)
+        {
+            // Get user ID from claims
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            // Verify that the coupon assignment belongs to the user
+            // We need to get the assignment through the service
+            var allAssignments = await _couponService.GetUserCoupons(userId);
+            var assignment = allAssignments.FirstOrDefault(ca => ca.Id == assignmentId);
+
+            if (assignment == null)
+            {
+                return NotFound("Coupon assignment not found or does not belong to user");
+            }
+
+            if (assignment.IsUsed)
+            {
+                return BadRequest("Coupon has already been used");
+            }
+
+            var success = await _couponService.MarkCouponAsUsed(assignmentId);
+            if (!success)
+            {
+                return StatusCode(500, "Error marking coupon as used");
+            }
+
+            return Ok(new { message = "Coupon marked as used successfully" });
         }
     }
 }

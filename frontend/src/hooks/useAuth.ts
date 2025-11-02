@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthState, User } from '../types';
 import CouponService from '../services/couponService';
+import UserService from '../services/userService';
 
 interface AuthContextType extends AuthState {
   login: (token: string, user: User) => void;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           isAuthenticated: true,
         });
         CouponService.setToken(token);
+        UserService.setToken(token);
       } catch (error) {
         // If there's an error parsing, clear the localStorage
         localStorage.removeItem('token');
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Set token in services
     CouponService.setToken(token);
+    UserService.setToken(token);
   };
 
   const logout = () => {

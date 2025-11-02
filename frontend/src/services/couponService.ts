@@ -1,6 +1,6 @@
 import { Coupon, CouponAssignment } from '../types';
 
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = ''; // Use relative paths with proxy
 
 class CouponService {
   private token: string | null = null;
@@ -126,6 +126,43 @@ class CouponService {
     }
   }
 
+  // Manager/Admin: Update a coupon
+  async updateCoupon(id: number, couponData: Partial<Coupon>): Promise<Coupon> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/coupons/${id}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(couponData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update coupon: ${response.status} ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating coupon:', error);
+      throw error;
+    }
+  }
+
+  // Manager/Admin: Delete a coupon
+  async deleteCoupon(id: number): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/coupons/${id}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete coupon: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error deleting coupon:', error);
+      throw error;
+    }
+  }
+
   // Manager/Admin: Upload coupons from Excel
   async uploadCouponsFromExcel(file: File): Promise<Coupon[]> {
     try {
@@ -167,6 +204,26 @@ class CouponService {
       return await response.json();
     } catch (error) {
       console.error('Error assigning coupon:', error);
+      throw error;
+    }
+  }
+
+  // Manager/Admin: Bulk assign coupons by assignment title
+  async assignCouponsByAssignmentTitle(assignmentData: { assignmentTitle: string }): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/coupons/assign-by-title`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(assignmentData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to bulk assign coupons: ${response.status} ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error bulk assigning coupons:', error);
       throw error;
     }
   }

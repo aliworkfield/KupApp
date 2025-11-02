@@ -3,29 +3,32 @@ export interface User {
   username: string;
   email: string;
   role: 'admin' | 'manager' | 'user';
-  created_at?: string;
+  createdAt: string;
 }
 
 export interface Coupon {
   id: number;
   code: string;
   description: string;
-  discount_amount: number;
-  discount_type: 'percentage' | 'fixed';
-  expiration_date: string | null;
-  is_active: boolean;
-  created_at: string;
-  created_by: number;
+  discountAmount: number;
+  discountType: 'percentage' | 'fixed';
+  expirationDate: string | null;
+  isActive: boolean;
+  createdAt: string;
+  createdById: number;
+  // New properties
+  brand: string;
+  assignmentTitle: string;
 }
 
 export interface CouponAssignment {
   id: number;
-  coupon_id: number;
-  user_id: number;
-  is_used: boolean;
-  assigned_at: string;
-  used_at: string | null;
-  coupon_code: string;
+  couponId: number;
+  userId: number;
+  isUsed: boolean;
+  assignedAt: string;
+  usedAt: string | null;
+  couponCode: string;
 }
 
 export interface AuthState {

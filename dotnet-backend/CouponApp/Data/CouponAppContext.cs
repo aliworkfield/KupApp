@@ -33,6 +33,8 @@ namespace CouponApp.Data
                 entity.HasIndex(e => e.Code).IsUnique();
                 entity.Property(e => e.Code).IsRequired();
                 entity.Property(e => e.DiscountType).IsRequired();
+                entity.Property(e => e.Brand).HasDefaultValue("");
+                entity.Property(e => e.AssignmentTitle).HasDefaultValue("");
                 
                 // Configure relationship with User
                 entity.HasOne(c => c.CreatedBy)

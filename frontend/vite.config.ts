@@ -6,5 +6,22 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    proxy: {
+      '/users': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/coupons': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/auth': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
 })

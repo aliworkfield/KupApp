@@ -1,0 +1,9 @@
+USE master;
+GO
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'CouponTestDb')
+BEGIN
+    ALTER DATABASE CouponTestDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE CouponTestDb;
+END
+GO

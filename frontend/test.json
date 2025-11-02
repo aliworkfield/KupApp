@@ -1,0 +1,6 @@
+{
+  "code": "TEST123",
+  "description": "Test Coupon",
+  "discountAmount": 10,
+  "discountType": "fixed"
+}

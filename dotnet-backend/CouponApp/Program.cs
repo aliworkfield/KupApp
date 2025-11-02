@@ -24,20 +24,24 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CouponService>();
 builder.Services.AddScoped<AuthService>();
 
-// Add Windows Authentication
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-    .AddNegotiate()
-    .AddJwtBearer(options =>
+// Add Authentication with both Windows and JWT
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddNegotiate()
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
-                builder.Configuration["Jwt:Key"] ?? "default_secret_key_that_should_be_changed_in_production")),
-            ValidateIssuer = false,
-            ValidateAudience = false
-        };
-    });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+            builder.Configuration["Jwt:Key"] ?? "default_secret_key_that_should_be_changed_in_production")),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
 
 // Add CORS
 builder.Services.AddCors(options =>

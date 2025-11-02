@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Dashboard from './components/Dashboard';
+import Login from './components/Login';
 import './App.css';
 import './components/Login.css';
 import './components/Dashboard.css';
 
-// Create a component that handles Windows authentication
-const WindowsAuthWrapper: React.FC = () => {
-  const { login } = useAuth();
+// Create a component that handles authentication
+const AuthWrapper: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const authenticateWithWindows = async () => {
@@ -48,11 +49,12 @@ const WindowsAuthWrapper: React.FC = () => {
             throw new Error('Failed to fetch user info');
           }
         } else {
-          throw new Error('Windows authentication failed');
+          // Windows auth failed, show login form for testing
+          setShowLogin(true);
         }
       } catch (err: any) {
-        setError(err.message || 'Authentication failed');
-        console.error('Windows authentication error:', err);
+        // Windows auth failed, show login form for testing
+        setShowLogin(true);
       } finally {
         setLoading(false);
       }
@@ -65,25 +67,24 @@ const WindowsAuthWrapper: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [login]);
+  }, []);
+
+  // If user is authenticated, show dashboard
+  if (isAuthenticated) {
+    return <Dashboard />;
+  }
 
   if (loading) {
     return <div className="login-container">
       <div className="login-form">
         <h2>Authenticating...</h2>
-        <p>Please wait while we authenticate you with Windows credentials.</p>
+        <p>Please wait while we authenticate you.</p>
       </div>
     </div>;
   }
 
-  if (error) {
-    return <div className="login-container">
-      <div className="login-form">
-        <h2>Authentication Failed</h2>
-        <p>{error}</p>
-        <p>Please ensure you're accessing this application from a domain-joined machine.</p>
-      </div>
-    </div>;
+  if (showLogin) {
+    return <Login />;
   }
 
   return <Dashboard />;
@@ -93,7 +94,7 @@ function App() {
   return (
     <AuthProvider>
       <div className="App">
-        <WindowsAuthWrapper />
+        <AuthWrapper />
       </div>
     </AuthProvider>
   );

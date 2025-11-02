@@ -11,6 +11,9 @@ namespace CouponApp.DTOs
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public int CreatedById { get; set; }
+        // New properties
+        public string Brand { get; set; } = string.Empty;
+        public string AssignmentTitle { get; set; } = string.Empty;
     }
     
     public class CouponCreateDto
@@ -20,6 +23,9 @@ namespace CouponApp.DTOs
         public int DiscountAmount { get; set; }
         public string DiscountType { get; set; } = string.Empty;
         public DateTime? ExpirationDate { get; set; }
+        // New properties
+        public string Brand { get; set; } = string.Empty;
+        public string AssignmentTitle { get; set; } = string.Empty;
     }
     
     public class CouponUpdateDto
@@ -30,6 +36,9 @@ namespace CouponApp.DTOs
         public string? DiscountType { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public bool? IsActive { get; set; }
+        // New properties
+        public string? Brand { get; set; }
+        public string? AssignmentTitle { get; set; }
     }
     
     public class CouponAssignmentDto
@@ -47,5 +56,11 @@ namespace CouponApp.DTOs
     {
         public int CouponId { get; set; }
         public int UserId { get; set; }
+    }
+    
+    // New DTO for bulk assignment by assignment title
+    public class BulkCouponAssignmentDto
+    {
+        public string AssignmentTitle { get; set; } = string.Empty;
     }
 }

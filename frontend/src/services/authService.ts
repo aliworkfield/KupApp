@@ -1,6 +1,6 @@
 import { LoginCredentials, AuthState, User } from '../types';
 
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = ''; // Use relative paths with proxy
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<{ token: string; user: User }> {
@@ -20,7 +20,8 @@ class AuthService {
     }
 
     const data = await response.json();
-    const token = data.access_token;
+    // Fix: Use the correct property name from the backend response
+    const token = data.AccessToken;
     
     // Get user info from the backend
     const userResponse = await fetch(`${API_BASE_URL}/users/me`, {

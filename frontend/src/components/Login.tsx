@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { LoginCredentials } from '../types';
 
-const Login = () => {
+const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     username: '',
     password: '',
@@ -46,7 +46,42 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await login(credentials);
+      // For testing purposes, we'll use the existing login method
+      // In a real Windows auth scenario, this would be handled differently
+      const response = await fetch('http://localhost:8001/auth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: credentials.username,
+          password: credentials.password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
+
+      const data = await response.json();
+      const token = data.accessToken || data.access_token;
+      
+      // Get user info from the backend
+      const userResponse = await fetch('http://localhost:8001/users/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch user info');
+      }
+
+      const user = await userResponse.json();
+      
+      // Use the login function from context
+      login(token, user);
     } catch (err: any) {
       setError(err.message || 'Invalid username or password');
     } finally {
@@ -58,6 +93,7 @@ const Login = () => {
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form">
         <h2>Login</h2>
+        <p>Windows authentication failed. Please enter your credentials for testing.</p>
         {error && <div className="error-message">{error}</div>}
         <div className="form-group">
           <label htmlFor="username">Username</label>

@@ -24,8 +24,12 @@ namespace CouponApp.Models
         
         public int CreatedById { get; set; }
         
+        // New properties for brand and assignment title
+        public string Brand { get; set; } = string.Empty;
+        public string AssignmentTitle { get; set; } = string.Empty;
+        
         // Navigation properties
-        public User CreatedBy { get; set; } = new User();
+        public User? CreatedBy { get; set; }
         
         public ICollection<CouponAssignment> Assignments { get; set; } = new List<CouponAssignment>();
     }
