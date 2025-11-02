@@ -11,6 +11,7 @@
           "BCrypt.Net-Next": "4.0.3",
           "ClosedXML": "0.102.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.2",
+          "Microsoft.AspNetCore.Authentication.Negotiate": "8.0.2",
           "Microsoft.AspNetCore.OpenApi": "8.0.19",
           "Microsoft.EntityFrameworkCore.Sqlite": "9.0.10",
           "Microsoft.Extensions.Configuration": "9.0.10",
@@ -90,6 +91,31 @@
         "runtime": {
           "lib/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll": {
             "assemblyVersion": "8.0.2.0",
+            "fileVersion": "8.0.224.6804"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Negotiate/8.0.2": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Connections.Abstractions": "8.0.2",
+          "Microsoft.Extensions.Caching.Memory": "9.0.10",
+          "System.DirectoryServices.Protocols": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/Microsoft.AspNetCore.Authentication.Negotiate.dll": {
+            "assemblyVersion": "8.0.2.0",
+            "fileVersion": "8.0.224.6804"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Connections.Abstractions/8.0.2": {
+        "dependencies": {
+          "Microsoft.Extensions.Features": "8.0.2",
+          "System.IO.Pipelines": "9.0.10"
+        },
+        "runtime": {
+          "lib/net8.0/Microsoft.AspNetCore.Connections.Abstractions.dll": {
+            "assemblyVersion": "8.0.0.0",
             "fileVersion": "8.0.224.6804"
           }
         }
@@ -261,6 +287,14 @@
           "lib/net8.0/Microsoft.Extensions.DependencyModel.dll": {
             "assemblyVersion": "9.0.0.10",
             "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.Extensions.Features/8.0.2": {
+        "runtime": {
+          "lib/net8.0/Microsoft.Extensions.Features.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.224.6804"
           }
         }
       },
@@ -1384,6 +1418,20 @@
       "path": "microsoft.aspnetcore.authentication.jwtbearer/8.0.2",
       "hashPath": "microsoft.aspnetcore.authentication.jwtbearer.8.0.2.nupkg.sha512"
     },
+    "Microsoft.AspNetCore.Authentication.Negotiate/8.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2u48w1gEfHRAAc+ns9m5yKj7J6aPy0AmZrSnzOQMOLjriqfWRpb+oRLdzZ0mV7TkwUgoZLMVjqaH9Jjbd4KtyA==",
+      "path": "microsoft.aspnetcore.authentication.negotiate/8.0.2",
+      "hashPath": "microsoft.aspnetcore.authentication.negotiate.8.0.2.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Connections.Abstractions/8.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2+ZKSOSoC1EOYoki1iZNp49Gkt0Xy3zpsY8GEkBkl+aIjq4jHo2s2lZ4tpnIl3Z4FprGDaBUXAgaxVyCGQpZOA==",
+      "path": "microsoft.aspnetcore.connections.abstractions/8.0.2",
+      "hashPath": "microsoft.aspnetcore.connections.abstractions.8.0.2.nupkg.sha512"
+    },
     "Microsoft.AspNetCore.OpenApi/8.0.19": {
       "type": "package",
       "serviceable": true,
@@ -1495,6 +1543,13 @@
       "sha512": "sha512-qCIWxEPt6Y9Z/Vx2R6JsfX7pwxIHC2GYlkcFbTox3MpsiNexyLkvPFTNsfmAaKpjTZ6FhNmvY3BdrwLX4+X0cQ==",
       "path": "microsoft.extensions.dependencymodel/9.0.10",
       "hashPath": "microsoft.extensions.dependencymodel.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Features/8.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AUye08dSpkaJu1RBM0uIn053FdkTeBFMZKtC0N/0GJz3dYHrVPdjfxuHNu5/hqzvSjLA6rADJMzF3gUe6V/+bg==",
+      "path": "microsoft.extensions.features/8.0.2",
+      "hashPath": "microsoft.extensions.features.8.0.2.nupkg.sha512"
     },
     "Microsoft.Extensions.Logging/9.0.10": {
       "type": "package",

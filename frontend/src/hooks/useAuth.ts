@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AuthState, User, LoginCredentials } from '../types';
-import AuthService from '../services/authService';
+import { AuthState, User } from '../types';
 import CouponService from '../services/couponService';
 
 interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (token: string, user: User) => void;
   logout: () => void;
 }
 
@@ -39,35 +38,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
-    try {
-      // Validate input
-      if (!credentials.username || !credentials.password) {
-        throw new Error('Username and password are required');
-      }
-      
-      const { token, user } = await AuthService.login(credentials);
-      
-      setAuthState({
-        user,
-        token,
-        isAuthenticated: true,
-      });
-      
-      // Save to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      // Set token in services
-      CouponService.setToken(token);
-    } catch (error) {
-      // Re-throw the error so it can be handled by the calling component
-      throw error;
-    }
+  const login = (token: string, user: User) => {
+    setAuthState({
+      user,
+      token,
+      isAuthenticated: true,
+    });
+    
+    // Save to localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    // Set token in services
+    CouponService.setToken(token);
   };
 
   const logout = () => {
-    AuthService.logout();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     

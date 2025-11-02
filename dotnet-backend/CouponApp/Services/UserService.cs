@@ -20,31 +20,40 @@ namespace CouponApp.Services
 
         public async Task<User?> AuthenticateUser(string username, string password)
         {
-            // First try LDAP authentication
-            var isLdapUser = await _authService.AuthenticateWithLdap(username, password);
-            if (isLdapUser)
+            try
             {
-                // Get user info from LDAP
-                var ldapUserInfo = await _ldapService.GetUserInfoAsync(username);
-                
-                // Check if user exists in our database
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-                if (user == null && ldapUserInfo != null)
+                // First try LDAP authentication
+                var isLdapUser = await _authService.AuthenticateWithLdap(username, password);
+                if (isLdapUser)
                 {
-                    // Create user in our database if they don't exist
-                    user = new User
-                    {
-                        Username = ldapUserInfo.Username,
-                        Email = ldapUserInfo.Email,
-                        PasswordHash = _authService.HashPassword(password), // Still store a hash for local fallback
-                        Role = UserRole.User // Default role for LDAP users
-                    };
+                    // Get user info from LDAP
+                    var ldapUserInfo = await _ldapService.GetUserInfoAsync(username);
                     
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
+                    // Check if user exists in our database
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+                    if (user == null && ldapUserInfo != null)
+                    {
+                        // Create user in our database if they don't exist
+                        user = new User
+                        {
+                            Username = ldapUserInfo.Username,
+                            Email = ldapUserInfo.Email,
+                            PasswordHash = _authService.HashPassword(password), // Still store a hash for local fallback
+                            Role = UserRole.User // Default role for LDAP users
+                        };
+                        
+                        _context.Users.Add(user);
+                        await _context.SaveChangesAsync();
+                    }
+                    
+                    return user;
                 }
-                
-                return user;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception but continue with local authentication
+                // In a production environment, you would log this properly
+                Console.WriteLine($"LDAP authentication failed: {ex.Message}");
             }
             
             // Fall back to local authentication

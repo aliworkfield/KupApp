@@ -189,3 +189,6 @@ C:\ProgProj\KupApp\dotnet-backend\CouponApp\obj\Debug\net8.0\staticwebassets.bui
 C:\ProgProj\KupApp\dotnet-backend\CouponApp\obj\Debug\net8.0\CouponApp.csproj.Up2Date
 C:\ProgProj\KupApp\dotnet-backend\CouponApp\obj\Debug\net8.0\CouponApp.genruntimeconfig.cache
 C:\ProgProj\KupApp\dotnet-backend\CouponApp\obj\Debug\net8.0\ref\CouponApp.dll
+C:\ProgProj\KupApp\dotnet-backend\CouponApp\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Negotiate.dll
+C:\ProgProj\KupApp\dotnet-backend\CouponApp\bin\Debug\net8.0\Microsoft.AspNetCore.Connections.Abstractions.dll
+C:\ProgProj\KupApp\dotnet-backend\CouponApp\bin\Debug\net8.0\Microsoft.Extensions.Features.dll
